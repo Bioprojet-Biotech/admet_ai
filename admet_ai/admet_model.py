@@ -226,7 +226,6 @@ class ADMETModel:
 
             if self.cache_molecules:
                 SMILES_TO_MOL[smile] = mol
-
         # Remove invalid molecules
         invalid_mols = [mol is None for mol in mols]
 
@@ -238,6 +237,18 @@ class ADMETModel:
                 smile for smile, invalid in zip(smiles, invalid_mols) if not invalid
             ]
 
+        return self.predict(mols, smiles, smiles_type)
+
+    def predict(self, mols: Chem.rdchem.Mol | list[Chem.rdchem.Mol], smiles=None, smiles_type=None) -> dict[str, float] | pd.DataFrame:
+       # Convert SMILES to list if needed
+        if not isinstance(mols, list):
+            mols = [mols]
+
+        smiles_type = list
+        if smiles is None:
+            smiles = [Chem.MolToSmiles(mol) for mol in mols ]
+
+     
         # Compute physicochemical properties
         physchem_preds = compute_physicochemical_properties(
             all_smiles=smiles, mols=mols
@@ -350,3 +361,6 @@ class ADMETModel:
             preds = preds.iloc[0].to_dict()
 
         return preds
+
+
+
